@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KDTree
-
+from pointInside import *
 
 class sph_particle:
     def __init__(self):
@@ -22,7 +22,7 @@ class sph_swarm:
         self.SMOOTHING_LENGTH = 0.8 # [m]
 
         # fluid properties
-        self.target_density = 0.37 # [kg/m^3]
+        self.target_density = 0.36 # [kg/m^3]
         self.is_compressible = False
         self.VISCOSITY = 0.0001 # [Pa s]
         self.TEMPERATURE = 0.001 # [K]
@@ -212,6 +212,11 @@ class sph_swarm:
         # serch nearest points
         nearest_points = self.swarm_shape[ind[0][0:NEAR_POINTS]]
 
+        # area interior/exterior judgment (judgement)
+        if is_inside_sm(self.swarm_shape, [particle.pos_x, particle.pos_y]) == 1:
+            # inside
+            return [0, 0]
+
         # calculate force
         for i in range(NEAR_POINTS):
             if NEAR_POINTS == 1:
@@ -247,8 +252,8 @@ class sph_swarm:
             swarm_shape_force = self.caluculate_swarm_shape_force(particle, particles)
 
             # control force + sph_force + potential_field + swarm_shape_force - friction
-            dv_x = self.forces[0] + sph_force[0] + 0.015*potential_field[0] + 25*swarm_shape_force[0] - 0.35*particle.vel_x
-            dv_y = self.forces[1] + sph_force[1] + 0.015*potential_field[1] + 25*swarm_shape_force[1] - 0.35*particle.vel_y
+            dv_x = self.forces[0] + sph_force[0] + 0.005*potential_field[0] + 45*swarm_shape_force[0] - 0.35*particle.vel_x
+            dv_y = self.forces[1] + sph_force[1] + 0.005*potential_field[1] + 45*swarm_shape_force[1] - 0.35*particle.vel_y
 
             # update velocity
             particle.vel_x = particle.vel_x + dv_x*self.DT
@@ -307,16 +312,16 @@ if __name__ == "__main__":
     swarm_shape = np.zeros((40, 2))
     for i in range(10):
         swarm_shape[i][0] = 0.05
-        swarm_shape[i][1] = 0.1 - 0.02*i
+        swarm_shape[i][1] = 0.15 - 0.03*i
     for i in range(10):
         swarm_shape[i+10][0] = 0.05 - 0.01*i
-        swarm_shape[i+10][1] = -0.1
+        swarm_shape[i+10][1] = -0.15
     for i in range(10):
         swarm_shape[i+20][0] = -0.05
-        swarm_shape[i+20][1] = -0.1 + 0.02*i
+        swarm_shape[i+20][1] = -0.15 + 0.03*i
     for i in range(10):
         swarm_shape[i+30][0] = -0.05 + 0.01*i
-        swarm_shape[i+30][1] = 0.1
+        swarm_shape[i+30][1] = 0.15
     
    
     
